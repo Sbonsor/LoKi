@@ -30,7 +30,7 @@ class LoKi:
         self.scale = False
         self.project = False
         self.max_r = 1e9
-        self.ode_atol = 1e-30
+        self.ode_atol = 1e-10
         self.ode_rtol = 1e-8
         self.pot_only = False
         self.asymptotics = False
