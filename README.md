@@ -15,7 +15,7 @@ A Python code for the solution of the Loaded King models described in (paper her
 - ode_atol: Absolute tolerance for the ODE solver (Optional, default = 1e-10).
 - ode_rtol: Relative tolerance for the ODE solver (Optional, default = 1e-8).
 - pot_only: Set to True in order to only return the potential and it's gradient for a faster solution (Optional, default = False).
-- asymptotics: Set to True in order to return the asymptotic solutions in each of the three regimes (Optional, default = False, can be set to True only in model == 'K').
+- asymptotics: Set to True in order to return the asymptotic solutions in each of the three regimes (Optional, default = False, can be set to True only in model == 'K', not implemented yet).
 - model: Flag to indicate which model type to solve (Optional, default = 'K')
   - 'K' = King model.
   - 'PT' = Prendergast & Tomer model.
@@ -25,7 +25,7 @@ A Python code for the solution of the Loaded King models described in (paper her
 - psi, dpsi_dr, rhat : dimensionless escape energy, it's gradient, and radius all in dimensionless units.
 - density, pressure: density and pressure in dimensionless units.
 - If scale == True:
-  - a, A, E_0 : Dimensional constants required for the scaling.
+  - a, A, E_0 : Dimensional constants required for scaling to Hénon units.
 - If project == True:
   - d, proj_density, proj_pressure : projected radius, density, and pressure in dimensionless units.
 - If asymptotics == True:
@@ -49,4 +49,4 @@ A Python code for the solution of the Loaded King models described in (paper her
   - m: Mass of the particle in the specified unit system.
 - U: The total potential energy of the samples.
 - K: The total kinetic energy of the samples.
-- Virial: The virial ratio as a check on the procedure.
+- Q: The virial ratio as a check on the procedure.
