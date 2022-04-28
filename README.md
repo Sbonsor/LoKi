@@ -23,9 +23,13 @@ A Python code for the solution of the Loaded King models described in (paper her
 
 ### Output
 - psi, dpsi_dr, rhat : dimensionless escape energy, it's gradient, and radius all in dimensionless units.
-- density, pressure: density and pressure in dimensionless units.
+- rt: Truncation radius where psi=0 in dimensionless units.
+- rho_hat, P_hat: density and pressure in dimensionless units.
+- U_r,M_r,K_r: radial profiles of potential energy, mass, and kinetic energy in dimensionless units.
+- U_hat,M_hat,K_hat: Total potential energy, mass, and kinetic energy in dimensionless units.
 - If scale == True:
-  - a, A, E_0 : Dimensional constants required for scaling to Hénon units.
+  - a, A, E_0: Dimensional constants required for scaling to Hénon units.
+  - Ae,r_k,A_hat: Useful combinations of the above.
 - If project == True:
   - d, proj_density, proj_pressure : projected radius, density, and pressure in dimensionless units.
 - If asymptotics == True:
@@ -41,12 +45,13 @@ A Python code for the solution of the Loaded King models described in (paper her
 
 ### Options
 - scale: Set to True in order to scale output into Hénon units (Optional, default = True).
+- plot: set to True (along with scale) to produce validation figures for the radial and energy distirbution of particles.
 
 ### Output
 - A .csv file containing for each particle:
   - x, y, z: Position of the particle in the specified unit system.
   - vx,vy,vz: Velocity of the particle in the specified unit system.
   - m: Mass of the particle in the specified unit system.
-- U: The total potential energy of the samples.
-- K: The total kinetic energy of the samples.
-- Q: The virial ratio as a check on the procedure.
+- If plot = True:
+  - Figure object showing a histogram of radial samples and the expected distribution, see test_script for an example of how to plot these.
+  - Figure object showing a histogram of energy samples and the expected distribution.
