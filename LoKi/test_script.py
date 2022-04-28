@@ -6,18 +6,21 @@ Created on Thu Apr 21 15:35:38 2022
 @author: s1984454
 """
 from LoKi import LoKi
+from LoKi_samp import LoKi_samp
 import numpy as np
 import matplotlib.pyplot as plt
 from loaded_king import LoadedKing
+from scipy.interpolate import interp1d
 plt.rc('text', usetex=True)
 
-test_model = LoKi(0.1,0.1,5)
+m = LoKi(0.1,0.1,5)
 
-b = LoadedKing(0.1,0.1,5,'K',1e9,False)
+#b = LoadedKing(0.1,0.1,5,'K',1e9,False)
 
-fig,ax = plt.subplots(1,1)
-ax.plot(test_model.rhat,test_model.psi)
-ax.set_xlabel('$\\hat{r}$')
-ax.set_ylabel('$\\psi$')
-ax.set_yscale('log')
-ax.set_xscale('log')
+samples = LoKi_samp(m, N=10000, plot = True)
+
+## Validation figures for sampling
+fig1,fig2 = samples.print_validation_figs()
+fig1.show()
+fig2.show()
+

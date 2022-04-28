@@ -17,7 +17,11 @@ class LoKi:
     def __init__(self, mu, epsilon, Psi, **kwargs ):
         
         self._set_kwargs(mu, epsilon, Psi, **kwargs)
+        
         self.solve_poisson()
+        
+        if (self.scale):
+            self.scale()
     
     def _set_kwargs(self, mu, epsilon, Psi, **kwargs):
         
@@ -30,7 +34,7 @@ class LoKi:
         self.scale = False
         self.project = False
         self.max_r = 1e9
-        self.ode_atol = 1e-10
+        self.ode_atol = 1e-30
         self.ode_rtol = 1e-8
         self.pot_only = False
         self.asymptotics = False
@@ -81,7 +85,24 @@ class LoKi:
         self.dpsi_dr = poisson_solution.y[1,:]
         self.rhat = poisson_solution.t
         
+        if(self.pot_only == False):
+            
+            self.rt = self.rhat[-1]
+            self.U_r = poisson_solution.y[2,:]
+            self.K_r = poisson_solution.y[3,:]
+            self.M_r = -self.mu-self.dpsi_dr*np.power(self.rhat,2)*(4*np.pi/9)
+            self.M_hat = self.M_r[-1]
+            self.U_hat = self.U_r[-1]
+            self.rho_hat = self.density(self.psi)
+            self.P_hat = self.pressure(self.psi)
         
+    def scale(self):
+        
+         self.r_k = -2*self.U_hat/np.power(self.M_hat, 2)
+         self.a = -9*self.U_hat/(2*np.pi*self.M_hat)
+         self.E_0 = -1/(self.a*self.r_k*self.rt)
+         self.Ae = -3*np.power(self.a,3/2)*np.power(self.M_hat,5)/(64*np.sqrt(2)*np.pi*np.power(self.U_hat,3)*self.density(self.Psi))
+         self.A_hat = 8*np.sqrt(2)*np.pi*self.Ae/(3*np.power(self.a,3/2))
         
     def density(self,psi):
         if self.model == 'K':
