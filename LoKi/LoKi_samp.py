@@ -5,6 +5,7 @@ import numpy as np
 from scipy.special import gammainc,gamma
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
+import pandas as pd
 
 """
 Created on Tue Apr 26 16:21:38 2022
@@ -32,7 +33,7 @@ class LoKi_samp:
         self.model = model
         self.N = 1000
         self.scale = True
-        self.fname = 'LoKi_samples.pkl'
+        self.fname = 'LoKi_samples.csv'
         self.plot = False
     
         if kwargs is not None:
@@ -117,8 +118,9 @@ class LoKi_samp:
     
     def print_results(self):
     
-        results = {'x':self.x, 'y':self.y, 'z':self.z, 'vx':self.vx, 'vy':self.vy, 'vz':self.vz,'m':self.m}
-       
+        results = pd.DataFrame({'x':self.x, 'y':self.y, 'z':self.z, 'vx':self.vx, 'vy':self.vy, 'vz':self.vz,'m':self.m})
+        results.to_csv(self.fname,index = False,columns = ['x','y','z','vx','vy','vz','m'])
+
     def print_validation_figs(self):
         
         model = self.model
