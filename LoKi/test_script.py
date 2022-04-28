@@ -15,8 +15,6 @@ plt.rc('text', usetex=True)
 
 m = LoKi(0.1,0.1,5)
 
-#b = LoadedKing(0.1,0.1,5,'K',1e9,False)
-
 samples = LoKi_samp(m, N=10000, plot = True)
 
 ## Validation figures for sampling
