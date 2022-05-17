@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from scipy.integrate import solve_ivp
+from scipy.integrate import solve_ivp,simps
 from scipy.special import gammainc,gamma
 from scipy.interpolate import interp1d
 
@@ -22,6 +22,14 @@ class LoKi:
         
         if (self.scale):
             self.scale()
+            
+        if (self.project):
+            
+            self.d = self.rhat
+            self.proj_dens = self.project_quantity(self.rho_hat)
+            self.proj_press = self.project_quantity(self.P_hat)
+            self.proj_vel_disp = self.proj_press/self.proj_dens
+            
     
     def _set_kwargs(self, mu, epsilon, Psi, **kwargs):
         
@@ -134,3 +142,19 @@ class LoKi:
             pressure = np.nan_to_num(pressure,copy = False)
             
         return pressure
+    
+    def project_quantity(model,f):
+        d = model.rhat
+        proj_f = np.zeros(len(d))
+        
+        for i in range(len(d)):
+            idx = (model.rhat >= d[i])
+            r = model.rhat[idx]
+            z = np.sqrt(abs(r**2 - d[i]**2))
+            
+            proj_f[i] = 2.0*abs(simps(f[idx], x=z))
+            
+        return proj_f
+
+                    
+    
