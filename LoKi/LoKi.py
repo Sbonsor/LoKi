@@ -104,7 +104,7 @@ class LoKi:
             self.rho_hat = self.density(self.psi)
             self.P_hat = self.pressure(self.psi)
         
-    def scale(self):
+    def scale(self): ### Not functional yet!
         
          self.r_k = -2*self.U_hat/np.power(self.M_hat, 2)
          self.a = -9*self.U_hat/(2*np.pi*self.M_hat)
