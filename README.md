@@ -1,5 +1,5 @@
 # Loaded King models
-A Python code for the solution of the Loaded King models described in (paper here), along with a discrete sampler to generate 
+A Python code for the solution of the Loaded King models described in (paper link to be added), along with a discrete sampler to generate 
 
 ## LoKi
 
@@ -9,13 +9,12 @@ A Python code for the solution of the Loaded King models described in (paper her
 - Psi: central concentration (required).
 
 ### Options
-- scale: Set to True in order to scale output into Hénon units (Optional, default = False).
+- scale: Set to True in order to scale output into Hénon units (Optional, default = False, not implemented yet).
 - project: Set to True in order to provide density and velocity dispersion profiles in projection (Optional, default = False, not implemented yet). 
 - max_r: Maximum radius to integrate the solution to Poisson's equation up to (Optional, default = 1e9).
 - ode_atol: Absolute tolerance for the ODE solver (Optional, default = 1e-10).
 - ode_rtol: Relative tolerance for the ODE solver (Optional, default = 1e-8).
 - pot_only: Set to True in order to only return the potential and it's gradient for a faster solution (Optional, default = False).
-- asymptotics: Set to True in order to return the asymptotic solutions in each of the three regimes (Optional, default = False, can be set to True only in model == 'K', not implemented yet).
 - model: Flag to indicate which model type to solve (Optional, default = 'K')
   - 'K' = King model.
   - 'PT' = Prendergast & Tomer model.
