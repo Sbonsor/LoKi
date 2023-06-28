@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -22,7 +23,7 @@ class LoKi_samp:
         self.sample_velocities()
         self.set_masses()
         
-        if(self.scale):
+        if(self.scale != None):
             self.scale_output()
         
         self.print_results()
@@ -32,7 +33,7 @@ class LoKi_samp:
         
         self.model = model
         self.N = 1000
-        self.scale = True
+        self.scale = None
         self.fname = 'LoKi_samples.csv'
         self.plot = False
     
@@ -94,7 +95,7 @@ class LoKi_samp:
         
         model = self.model
         
-        if(self.scale):
+        if(self.scale == 'nbody'):
             
             self.m = np.ones(self.N)/self.N
             
@@ -106,11 +107,12 @@ class LoKi_samp:
         
         model = self.model
         
-        self.r_k = -2*model.U_hat/np.power(model.M_hat, 2)
-        self.a = -9*model.U_hat/(2*np.pi*model.M_hat)
-        sqrt_a = np.sqrt(self.a)
-        self.E_0 = -1/(self.a*self.r_k*model.rt)
-        self.Ae = -3*np.power(self.a,3/2)*np.power(model.M_hat,5)/(64*np.sqrt(2)*np.pi*np.power(model.U_hat,3)*model.rho_hat[0])
+        if self.scale == 'nbody':
+            self.r_k = -2*model.U_hat/np.power(model.M_hat, 2)
+            self.a = -9*model.U_hat/(2*np.pi*model.M_hat)
+            sqrt_a = np.sqrt(self.a)
+            self.E_0 = -1/(self.a*self.r_k*model.rt)
+            self.Ae = -3*np.power(self.a,3/2)*np.power(model.M_hat,5)/(64*np.sqrt(2)*np.pi*np.power(model.U_hat,3)*model.rho_hat[0])
         
         
         self.x,self.y,self.z = self.x*self.r_k, self.y*self.r_k, self.z*self.r_k
@@ -154,7 +156,7 @@ class LoKi_samp:
             
                 return 16*np.pi**2 * integral
             
-            E_hat = np.linspace(-5,0,100)
+            E_hat = np.linspace(-model.Psi,0,100)
             theoretical_dimensionless_dM_dE = dimensionless_dM_dE(E_hat,model.psi,model.rhat,1000)
 
             E = E_hat/self.a + self.E_0
