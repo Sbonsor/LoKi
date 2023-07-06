@@ -6,10 +6,7 @@ Created on Mon Jun 12 13:11:48 2023
 @author: s1984454
 """
 import numpy as np
-import sys
 import matplotlib.pyplot as plt
-import utils
-import ODEs
 from scipy.interpolate import interp1d
 from scipy.special import gammainc
 from scipy.special import gamma
