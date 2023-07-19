@@ -1,5 +1,5 @@
 # Loaded King models
-A Python code for the solution of the Loaded King models described in (paper link to be added), along with a discrete sampler to generate 
+A Python code for the solution of the Loaded King models described in (paper link to be added), along with a discrete sampler to generate discrete samples from a given model.
 
 ## LoKi
 
