@@ -9,8 +9,6 @@ A Python code for the solution of the Loaded King models described in (paper lin
 - Psi: central concentration (required).
 
 ### Options
-- scale: Set to True in order to scale output into Hénon units (Optional, default = False, not implemented yet).
-- project: Set to True in order to provide density and velocity dispersion profiles in projection (Optional, default = False, not implemented yet). 
 - max_r: Maximum radius to integrate the solution to Poisson's equation up to (Optional, default = 1e9).
 - ode_atol: Absolute tolerance for the ODE solver (Optional, default = 1e-10).
 - ode_rtol: Relative tolerance for the ODE solver (Optional, default = 1e-8).
@@ -26,15 +24,6 @@ A Python code for the solution of the Loaded King models described in (paper lin
 - rho_hat, P_hat: density and pressure in dimensionless units.
 - U_r,M_r,K_r: radial profiles of potential energy, mass, and kinetic energy in dimensionless units.
 - U_hat,M_hat,K_hat: Total potential energy, mass, and kinetic energy in dimensionless units.
-- If scale == True:
-  - a, A, E_0: Dimensional constants required for scaling to Hénon units.
-  - Ae,r_k,A_hat: Useful combinations of the above.
-- If project == True:
-  - d, proj_density, proj_pressure : projected radius, density, and pressure in dimensionless units.
-- If asymptotics == True:
-  - psi_X_Y, r_X_Y: dimensionless escape energy and radius in regime X, region Y.
-  - C_Psi, D_Psi: Values of C(\Psi), and D(\Psi).
-
 ## Sampler
 
 ### Input
