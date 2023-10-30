@@ -25,8 +25,9 @@ class LoKi_samp:
         
         if(self.scale != None):
             self.scale_output()
-        
-        self.print_results()
+
+        if(self.print):
+            self.print_results()
         
         
     def _set_kwargs(self, model, **kwargs):
@@ -36,6 +37,7 @@ class LoKi_samp:
         self.scale = None
         self.fname = 'LoKi_samples.csv'
         self.plot = False
+        self.print = False
     
         if kwargs is not None:
             for key,value in kwargs.items():
