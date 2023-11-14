@@ -7,7 +7,6 @@ from scipy.special import gammainc,gamma
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import pandas as pd
-np.random.seed(seed = 12009837)
 """
 Created on Tue Apr 26 16:21:38 2022
 
