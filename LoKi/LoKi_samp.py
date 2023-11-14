@@ -7,7 +7,7 @@ from scipy.special import gammainc,gamma
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import pandas as pd
-
+np.random.seed(seed = 12009837)
 """
 Created on Tue Apr 26 16:21:38 2022
 
@@ -23,10 +23,10 @@ class LoKi_samp:
         self.sample_velocities()
         self.set_masses()
         
-        if(self.scale != None):
+        if(self.scale_nbody):
             self.scale_output()
-
-        if(self.print):
+        
+        if (self.print):
             self.print_results()
         
         
@@ -34,62 +34,60 @@ class LoKi_samp:
         
         self.model = model
         self.N = 1000
-        self.scale = None
+        self.scale_nbody = True
+        self.print = False
         self.fname = 'LoKi_samples.csv'
         self.plot = False
-        self.print = False
     
         if kwargs is not None:
             for key,value in kwargs.items():
                 setattr(self,key,value)
     
     def sample_positions(self):
-        
-        model = self.model
-        
+    
         rand1 = np.random.rand(self.N)
-        
-        self.r = np.interp(rand1, model.M_r/model.M_hat, model.rhat)
-        
+
+        self.r = np.interp(rand1, self.model.M_r/self.model.M_hat, self.model.rhat)
+
         rand2 = np.random.rand(self.N)
         rand3 = np.random.rand(self.N)
-        
+
         r2 = self.r ** 2
-        self.z = (1-2*rand2)*self.r
+        self.z = (1-2*rand2) * self.r
         self.x = np.sqrt(r2 - self.z**2)*np.cos(2*np.pi*rand3)
         self.y = np.sqrt(r2 - self.z**2)*np.sin(2*np.pi*rand3)
-        
-        self.psi_samples = np.interp(self.r,model.rhat,model.psi)
+
+        self.psi_samples = np.interp(self.r, self.model.rhat, self.model.psi)
         
     def sample_velocities(self):
         
-        model = self.model
-        
+        def cdf_v(v, max_v, psi):
+            
+            numerator =   np.sqrt(2)*np.exp(psi)*gamma(3/2)*gammainc(3/2,v**2/2) - v**3/3
+            denominator = np.sqrt(2)*np.exp(psi)*gamma(3/2)*gammainc(3/2,max_v**2/2) - max_v**3/3
+            
+            return numerator/denominator
+            
         self.v = np.zeros(self.N)
-        self.vz = np.zeros(self.N)
-        self.vx = np.zeros(self.N)
-        self.vy = np.zeros(self.N)
-        
-        #cdf for speeds
-        def cdf_v(psi,v):
-            max_v = np.sqrt(2*psi)
-            return (np.sqrt(2)*np.exp(psi)*gamma(3/2)*gammainc(3/2,v**2/2) - v**3/3)/(np.sqrt(2)*np.exp(psi)*gamma(3/2)*gammainc(3/2,max_v**2/2) - max_v**3/3) 
-        
-        for i in range(self.N):
+
+        for j in range(self.N):
+
+            psi_j = self.psi_samples[j]
             
+            v_max = np.sqrt(2*psi_j)
+            vs = np.linspace(0,v_max,10000)
+            cdf = cdf_v(vs, v_max, psi_j)
+
             rand4 = np.random.rand()
-            
-            psi = self.psi_samples[i]
-            v_range = np.linspace(0,np.sqrt(2*psi),500)
-            cdf = cdf_v(psi,v_range)
-            
-            self.v[i] = np.interp(rand4, cdf, v_range)
-            
-            rand5,rand6 = np.random.rand(2)
-            self.v2 = self.v[i]**2
-            self.vz[i] = (1-2*rand5)*self.v[i]
-            self.vx[i] = np.sqrt(self.v2 - np.power(self.vz[i],2))*np.cos(2*np.pi*rand6)
-            self.vy[i] = np.sqrt(self.v2 - np.power(self.vz[i],2))*np.sin(2*np.pi*rand6)
+            self.v[j] = np.interp(rand4, cdf, vs)
+
+        rand6 = np.random.rand(self.N)
+        rand7 = np.random.rand(self.N)
+
+        v2 = self.v ** 2
+        self.vz = (1-2*rand6) * self.v
+        self.vx = np.sqrt(v2 - self.vz**2)*np.cos(2*np.pi*rand7)
+        self.vy = np.sqrt(v2 - self.vz**2)*np.sin(2*np.pi*rand7) 
             
         self.E_hat_samp = 0.5*self.v**2 - self.psi_samples
             
@@ -97,7 +95,7 @@ class LoKi_samp:
         
         model = self.model
         
-        if(self.scale == 'nbody'):
+        if(self.scale_nbody):
             
             self.m = np.ones(self.N)/self.N
             
@@ -105,16 +103,15 @@ class LoKi_samp:
             
             self.m = np.ones(self.N)*model.M_hat/self.N
                 
-    def scale_output(self):
+    def scale_nody(self):
         
         model = self.model
         
-        if self.scale == 'nbody':
-            self.r_k = -2*model.U_hat/np.power(model.M_hat, 2)
-            self.a = -9*model.U_hat/(2*np.pi*model.M_hat)
-            sqrt_a = np.sqrt(self.a)
-            self.E_0 = -1/(self.a*self.r_k*model.rt)
-            self.Ae = -3*np.power(self.a,3/2)*np.power(model.M_hat,5)/(64*np.sqrt(2)*np.pi*np.power(model.U_hat,3)*model.rho_hat[0])
+        self.r_k = -2*model.U_hat/np.power(model.M_hat, 2)
+        self.a = -9*model.U_hat/(2*np.pi*model.M_hat)
+        sqrt_a = np.sqrt(self.a)
+        self.E_0 = -1/(self.a*self.r_k*model.rt)
+        self.Ae = -3*np.power(self.a,3/2)*np.power(model.M_hat,5)/(64*np.sqrt(2)*np.pi*np.power(model.U_hat,3)*model.rho_hat[0])
         
         
         self.x,self.y,self.z = self.x*self.r_k, self.y*self.r_k, self.z*self.r_k
@@ -122,14 +119,14 @@ class LoKi_samp:
     
     def print_results(self):
     
-        results = pd.DataFrame({'x':self.x, 'y':self.y, 'z':self.z, 'vx':self.vx, 'vy':self.vy, 'vz':self.vz,'m':self.m})
+        results = pd.DataFrame(data  = {'x':self.x, 'y':self.y, 'z':self.z, 'vx':self.vx, 'vy':self.vy, 'vz':self.vz,'m':self.m})
         results.to_csv(self.fname,index = False,columns = ['x','y','z','vx','vy','vz','m'])
 
     def print_validation_figs(self):
         
         model = self.model
         
-        if(self.plot and self.scale):
+        if(self.plot and self.scale_nbody):
             
             def density_normalisation(r,rho):
                 integrand = r**2*rho
@@ -173,12 +170,13 @@ class LoKi_samp:
             return fig1,fig2
         
         else:
-            raise Exception("scale and plot must both be true in order to print validation figures currently")
+            raise Exception("scale_nbody and plot must both be true in order to print validation figures currently")
         
         
         
-        
-        
+ 
+    
+    
         
         
         
