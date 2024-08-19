@@ -17,17 +17,34 @@ class LoKi_asymp:
     
     def __init__(self, LoKi_model, **kwargs ):
         
-     self.Psi = LoKi_model.Psi
-     self.epsilon = LoKi_model.epsilon
-     self.mu = LoKi_model.mu
-     
-     self.a_0 = self.Psi - 9*self.mu/(4*np.pi*self.epsilon)
-     self.kappa = 18/(5*self.rho_hat(self.Psi))
-     
-     self.solve_regime_I()
-     self.solve_regime_II()
-     self.solve_regime_III()
-     
+        self._set_kwargs(LoKi_model, **kwargs)
+                
+        if self.regime_I_flag:
+            self.solve_regime_I()
+            
+        if self.regime_II_flag:
+            self.solve_regime_II()
+            
+        if self.regime_III_flag:
+            self.solve_regime_III()
+    
+    def _set_kwargs(self, LoKi_model, **kwargs):
+            
+        self.regime_I_flag = True
+        self.regime_II_flag = True
+        self.regime_III_flag = True
+        
+        self.Psi = LoKi_model.Psi
+        self.epsilon = LoKi_model.epsilon
+        self.mu = LoKi_model.mu
+        
+        self.a_0 = self.Psi - 9*self.mu/(4*np.pi*self.epsilon)
+        self.kappa = 18/(5*self.rho_hat(self.Psi))
+        
+        if kwargs is not None:
+            for key,value in kwargs.items():
+                setattr(self,key,value)
+    
     def rho_hat(self, psi):
         
        if(psi > 0):
@@ -54,7 +71,7 @@ class LoKi_asymp:
         
         def zero_cross_region_1(r,y):
             return y[0] + self.epsilon**2 * y[2]
-        zero_cross_region_1.terminal = True
+        zero_cross_region_1.terminal = False
         
         def solve_region_1(self, final_radius = 1e9 ):
             
@@ -88,6 +105,8 @@ class LoKi_asymp:
             self.psi_0_grad_regime_I_region_2 = solution.y[1,:]
             self.r_2_regime_I = solution.t
             
+            self.r_2t = solution.t_events[0][0]
+            
             return 1
         
 
@@ -97,8 +116,6 @@ class LoKi_asymp:
         return 1
 
     def solve_regime_II(self):
-        
-        self.A_0 = self.a_0 * self.epsilon**-2
         
         def region_1_ODEs(r,y):
             
@@ -129,16 +146,8 @@ class LoKi_asymp:
             self.r_1_regime_II = poisson_solution.t
             
             self.psi_regime_II_region_1 = self.psi_0_regime_II_region_1 + self.epsilon**2 * self.psi_2_regime_II_region_1
-            
+            self.region_1_events = poisson_solution.t_events
             return 1
-        
-        solve_region_1(self)
-        
-        b_2_func= -2*self.kappa*np.power(self.Psi,5/2)*np.power(self.r_1_regime_II,1/2) - np.power(self.r_1_regime_II,2) * self.psi_2_grad_regime_II_region_1
-        self.b_2 = b_2_func[-1]
-        
-        a_2_func = self.psi_2_regime_II_region_1 - 4*self.kappa*np.power(self.Psi,5/2)*np.power(self.r_1_regime_II,-1/2) - self.b_2/self.r_1_regime_II
-        self.a_2 = a_2_func[-1]
         
         def region_2_ODEs(r,y):
             
@@ -173,8 +182,6 @@ class LoKi_asymp:
             
             return 1
         
-        solve_region_2(self)
-        
         def region_3_ODEs(r,y):
             
             RHS=np.zeros(2,)
@@ -199,10 +206,24 @@ class LoKi_asymp:
             self.r_3_regime_II = solution.t
             
             self.psi_regime_II_region_3 = np.power(self.epsilon,2) * self.phi_0_regime_II_region_3
-            
+            self.r_t_regime_II = solution.t_events[0][0]* self.epsilon**(-3/2)
             return 1
         
-        solve_region_3(self)
+        self.A_0 = self.a_0 * self.epsilon**-2
+        
+        solve_region_1(self)
+        
+        b_2_func= -2*self.kappa*np.power(self.Psi,5/2)*np.power(self.r_1_regime_II,1/2) - np.power(self.r_1_regime_II,2) * self.psi_2_grad_regime_II_region_1
+        self.b_2 = b_2_func[-1]
+        
+        a_2_func = self.psi_2_regime_II_region_1 - 4*self.kappa*np.power(self.Psi,5/2)*np.power(self.r_1_regime_II,-1/2) - self.b_2/self.r_1_regime_II
+        self.a_2 = a_2_func[-1]
+        
+        if(self.a_2 <= 0):
+            self.r_t_regime_II = self.region_1_events[0][0]*self.epsilon
+        else:
+            solve_region_2(self)
+            solve_region_3(self)
         
         return 1
     
@@ -330,33 +351,38 @@ def determine_critical_alpha(Psi, alpha_min = -40 , alpha_max = 100, plot = Fals
     C_Psi = LoKi_asymptotics.C_Psi
     D_Psi = LoKi_asymptotics.D_Psi
     
-    ###### Test with full numerical solutions 
-    # epsilon = 0.01
+    ###### Test with full numerical solutions
     
-    # A_2s = alpha_range-D_Psi- 40*np.power(kappa,2)*np.power(Psi,4)*np.log(epsilon)
-    # a_0s = (A_2s*np.power(epsilon,2)-C_Psi)*np.power(epsilon,2)
-    # mus = (Psi-a_0s)*(4*np.pi*epsilon)/9
-    
-    # rts = []
-    # i=0
-    # for mu in mus:
-    #     model = LoKi(mu,epsilon,Psi)
-    #     rts.append(model.rt)
-    #     i+=1
-    #     print(i)
-    
-    # scaled_rts = np.array(rts)*np.power(epsilon,3)
-        
     if(plot == True):
         fig,ax = plt.subplots(1,1)
         ax.plot(alpha_range,r_2_ts,color = 'k')
-        #ax.scatter(alpha_range, scaled_rts, marker = 'x')
         ax.set_xlabel('$\\alpha$')
         ax.set_ylabel('$r_{t}$')
         ax.set_title('$\\Psi = $ '+ str(Psi)) 
         ax.axvline(x = alpha_c, color = 'k', linestyle = '--')
-    
-    
+        
+        epsilons = [0.5,0.1,0.01]
+        
+        for epsilon in epsilons:
+            
+            epsilon = 0.01
+            
+            A_2s = alpha_range-D_Psi- 40*np.power(kappa,2)*np.power(Psi,4)*np.log(epsilon)
+            a_0s = (A_2s*np.power(epsilon,2)-C_Psi)*np.power(epsilon,2)
+            mus = (Psi-a_0s)*(4*np.pi*epsilon)/9
+            
+            rts = []
+            i=0
+            for mu in mus:
+                model = LoKi(mu,epsilon,Psi)
+                rts.append(model.rt)
+                i+=1
+                print(i)
+            
+            scaled_rts = np.array(rts)*np.power(epsilon,3)
+            
+            ax.scatter(alpha_range, scaled_rts, marker = 'x')
+        
     return alpha_c, C_Psi, D_Psi, kappa
     
     
